@@ -1,0 +1,32 @@
+{
+  "name": "gerencia-komplex",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Gerencia Komplex: registro de pagos, transferencias, caja, cuadre de caja, resumen y cierres de mes del Komplex Gym.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc -b && vite build && vite build --mode archivo",
+    "preview": "vite preview --host",
+    "test": "vitest run",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "docx": "^9.12.0",
+    "exceljs": "^4.4.0",
+    "lucide-react": "^1.59.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.4",
+    "vite-plugin-pwa": "^2.0.0",
+    "vite-plugin-singlefile": "^2.3.3",
+    "vitest": "^5.0.5"
+  }
+}

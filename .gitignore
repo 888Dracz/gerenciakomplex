@@ -1,0 +1,18 @@
+# Dependencias
+node_modules/
+
+# Build
+dist/
+dist-archivo/
+dev-dist/
+*.local
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / SO
+.vscode/*
+.idea/
+.DS_Store
