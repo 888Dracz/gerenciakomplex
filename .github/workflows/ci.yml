@@ -1,0 +1,24 @@
+name: CI
+
+# Revisa tipos, pruebas y compilación en cada push y pull request.
+on:
+  push:
+  pull_request:
+
+jobs:
+  prueba:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Tipos
+        run: npm run typecheck
+      - name: Pruebas
+        run: npm test
+      - name: Compilar
+        run: npm run build

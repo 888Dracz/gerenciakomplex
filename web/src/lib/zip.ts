@@ -75,7 +75,11 @@ export function descargarBinario(nombre: string, bytes: Uint8Array, mime: string
   const blob = new Blob([bytes as unknown as BlobPart], { type: mime });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = nombre;
+  // Sin tildes ni rayas largas: hay navegadores que descartan el nombre si las trae.
+  a.download = nombre.normalize('NFD').replace(/\p{Mn}/gu, '').replace(/[—–]/g, '-').replace(/[^\x20-\x7E]/g, '');
+  a.style.display = 'none';
+  // Dentro del documento: algunos navegadores ignoran el nombre si el enlace está suelto.
+  document.body.appendChild(a);
   a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
 }

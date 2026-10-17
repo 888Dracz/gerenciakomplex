@@ -166,7 +166,7 @@ interface Marco {
 }
 
 function ejes(
-  ctx: CanvasRenderingContext2D, w: number, h: number,
+  ctx: CanvasRenderingContext2D, w: number, _h: number,
   min: number, max: number, formato: Formato, topY: number, baseY: number,
 ): Marco {
   const { lo, hi, paso } = escala(Math.min(0, min), Math.max(0, max));

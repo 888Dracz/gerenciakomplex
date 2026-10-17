@@ -10,12 +10,13 @@ import { esRespaldo } from '../almacen/almacen.js';
 import { escribirBinario, escribirJson } from '../almacen/archivos.js';
 import { SUB, nombreSeguro } from '../almacen/carpeta.js';
 import { ARCHIVO_MAX, VERSION } from '../config.js';
-import { r2, resumen } from '../dominio/calculos.js';
+import { lineasTransferencia, r2, resumen } from '../dominio/calculos.js';
 import { esMes, hoyISO, nombreMes, ultimoDiaMes } from '../dominio/fechas.js';
 import { mesesPorCerrar, puedeCerrar } from '../dominio/periodos.js';
 import type { Cierre, ConfigPublica, Plan } from '../dominio/tipos.js';
 import { ErrorValidacion, limpiarLista } from '../dominio/validar.js';
 import { almacen } from '../estado.js';
+import { direccionesRed } from '../red.js';
 import { ApiError, body, esLocal, params, sesion } from '../http.js';
 import {
   activarGerencial, bloqueadoPorIntentos, cerrarOtras, cifrarClave, claveCorrecta, codigoGerencialCorrecto,
@@ -53,6 +54,8 @@ export default async function rutasAdmin(app: FastifyInstance): Promise<void> {
       hoy: hoyISO(),
       ultimoGuardado: a.ultimoGuardado,
       ultimoRespaldo: a.ultimoRespaldo,
+      direcciones: direccionesRed(),
+      transferenciasPendientes: lineasTransferencia(a.datos().registros).filter((l) => l.estado === 'pendiente').length,
     };
   });
 

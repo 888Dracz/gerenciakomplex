@@ -57,6 +57,19 @@ export default async function rutasDatos(app: FastifyInstance): Promise<void> {
     return almacen().datos(desde, hasta);
   });
 
+  /** Afiliados ya registrados (para autocompletar y proponer Nuevo/Renovación). */
+  app.get('/api/afiliados', async () => {
+    const mapa = new Map<string, { nombre: string; ultimoPlan: string; ultimaFecha: string; registros: number }>();
+    for (const r of almacen().datos().registros) {
+      const k = r.afiliado.trim().toLowerCase();
+      const x = mapa.get(k) ?? { nombre: r.afiliado, ultimoPlan: r.plan, ultimaFecha: r.fecha, registros: 0 };
+      x.registros++;
+      if (r.fecha >= x.ultimaFecha) { x.ultimaFecha = r.fecha; x.ultimoPlan = r.plan; x.nombre = r.afiliado; }
+      mapa.set(k, x);
+    }
+    return { afiliados: [...mapa.values()].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')) };
+  });
+
   // ---------------------------------------------------------------- registros
   app.post('/api/registros', async (req) => {
     const a = almacen();

@@ -72,7 +72,7 @@ export function Autocomplete({
           if (e.key === 'ArrowDown') { e.preventDefault(); if (!abierto) setAbierto(true); else marcar(activo + 1); }
           else if (e.key === 'ArrowUp') { e.preventDefault(); marcar(activo - 1); }
           else if (e.key === 'Enter' && activo >= 0 && filtradas[activo]) { e.preventDefault(); elegir(filtradas[activo]); }
-          else if (e.key === 'Escape') { setAbierto(false); setActivo(-1); }
+          else if (e.key === 'Escape' && abierto) { e.stopPropagation(); setAbierto(false); setActivo(-1); }
         }}
       />
       {abierto && (

@@ -9,22 +9,12 @@
  */
 import { spawn, exec } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 
 import { ABRIR_NAVEGADOR, APP_ID, HOST, PORT, VENTANA_APP } from './config.js';
 import { almacenActual, iniciarAlmacen } from './estado.js';
 import { crearApp } from './server.js';
-
-function ipsLocales(): string[] {
-  const out: string[] = [];
-  for (const lista of Object.values(os.networkInterfaces())) {
-    for (const i of lista ?? []) {
-      if (i.family === 'IPv4' && !i.internal && !out.includes(i.address)) out.push(i.address);
-    }
-  }
-  return out;
-}
+import { ipsLocales } from './red.js';
 
 /** Edge o Chrome instalados (para abrir en ventana de aplicación). */
 function navegadorApp(): string | null {
