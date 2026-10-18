@@ -9,7 +9,7 @@ import type { FastifyRequest } from 'fastify';
 import { Almacen } from './almacen/almacen.js';
 import { leerPuntero } from './almacen/carpeta.js';
 import { DATA_DIR_ENV } from './config.js';
-import { bloqueoEdicion, bloqueoEscritura, type Bloqueo } from './dominio/periodos.js';
+import type { Quien } from './dominio/operaciones.js';
 import { ApiError, sesion } from './http.js';
 import { gerencialActivo } from './sesiones.js';
 
@@ -43,32 +43,8 @@ export function almacen(): Almacen {
   return actual;
 }
 
-function lanzar(b: Bloqueo): never {
-  throw new ApiError(409, b.mensaje, {
-    codigo: b.tipo === 'mes_cerrado' ? 'MES_CERRADO' : 'CIERRE_PENDIENTE',
-    mes: b.mes,
-    meses: b.tipo === 'cierre_pendiente' ? b.meses : [b.mes],
-  });
-}
-
-function contexto(req: FastifyRequest) {
-  const a = almacen();
-  return { mesesConDatos: a.mesesConDatos(), cierres: a.config.cierres, gerencial: gerencialActivo(sesion(req)) };
-}
-
-/** Lanza 409 si la fecha está en un mes cerrado o hay meses anteriores por cerrar. */
-export function exigirEscritura(req: FastifyRequest, fecha: string): void {
-  const b = bloqueoEscritura(contexto(req), fecha);
-  if (b) lanzar(b);
-}
-
-export function exigirEdicion(req: FastifyRequest, fechaAnterior: string, fechaNueva: string): void {
-  const b = bloqueoEdicion(contexto(req), fechaAnterior, fechaNueva);
-  if (b) lanzar(b);
-}
-
-/** Deja constancia en la bitácora cuando se toca un mes cerrado con el código gerencial. */
-export function notaMesCerrado(req: FastifyRequest, fecha: string, detalle: string): void {
-  const a = almacen();
-  if (a.config.cierres[fecha.slice(0, 7)]) a.bitacora(sesion(req).nombre, 'Cambio en mes cerrado (gerencial)', detalle);
+/** Quién hace la acción (nombre y si tiene el modo gerencial activo). */
+export function quien(req: FastifyRequest): Quien {
+  const s = sesion(req);
+  return { nombre: s.nombre, gerencial: gerencialActivo(s) };
 }

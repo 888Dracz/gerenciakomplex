@@ -14,13 +14,15 @@ import { useApp, useEstado } from '../state/app';
 import { useUI } from '../state/ui';
 import { Pestanas, Segmentado, Tabla, Tarjeta } from '../components/basicos';
 import { useCierre } from '../components/Cierre';
+import { CarpetaWebConfig, CelularWeb, PaginaLocal } from '../components/CarpetaWeb';
 
 export function Configuracion() {
+  const web = !!useEstado().web;
   return (
     <Pestanas tabs={[
       { label: 'Planes y listas', render: () => <><Planes /><Listas /></> },
-      { label: 'Carpeta y respaldos', render: () => <><Carpeta /><Respaldos /></> },
-      { label: 'Acceso y celular', render: () => <><Celular /><Clave /></> },
+      { label: 'Carpeta y respaldos', render: () => (web ? <><CarpetaWebConfig /><Respaldos /><PaginaLocal /></> : <><Carpeta /><Respaldos /></>) },
+      { label: 'Acceso y celular', render: () => <>{web ? <CelularWeb /> : <Celular />}<Clave /></> },
       { label: 'Apariencia', render: () => <Apariencia /> },
       { label: 'Bitácora', render: () => <Bitacora /> },
     ]}
@@ -134,7 +136,7 @@ function Carpeta() {
     <Tarjeta titulo={<><Ico name="folder" /> Carpeta de datos</>} sub="Aquí se guarda todo automáticamente, separado del programa.">
       <div className="ruta" style={{ marginBottom: 10 }}>{estado.carpeta}</div>
       <p className="muted" style={{ fontSize: 12.5 }}>
-        {`Último guardado: ${fmtFechaHora(estado.ultimoGuardado) || '—'}. Dentro hay: datos (un archivo por mes), respaldos (copia diaria) y cierres (Excel e informe de cada mes cerrado).`}
+        {`Último guardado: ${fmtFechaHora(estado.ultimoGuardado) || '—'} · Dentro hay: datos (un archivo por mes), respaldos (copia diaria) y cierres (Excel e informe de cada mes cerrado).`}
       </p>
       {estado.local ? (
         <>
@@ -162,6 +164,8 @@ function Respaldos() {
   const ui = useUI();
   const { gerencial } = useApp();
   const { pedirGerencial } = useCierre();
+  const estado = useEstado();
+  const soloNavegador = !!estado.web && estado.carpetaEstado !== 'conectada';
   const [lista, setLista] = useState<{ carpeta: string; archivos: string[] } | null>(null);
   const archivo = useRef<HTMLInputElement | null>(null);
   useEffect(() => { apiGet<{ carpeta: string; archivos: string[] }>('/api/respaldos').then(setLista).catch(() => setLista(null)); }, []);
@@ -177,14 +181,16 @@ function Respaldos() {
     try {
       const json = JSON.parse(await f.text());
       const meses = Array.isArray(json?.meses) ? json.meses.length : 0;
-      if (!await ui.confirmar(`¿Reemplazar TODOS los datos actuales por los del respaldo "${f.name}" (${meses} mes(es))?\nAntes se guarda una copia de lo actual en la carpeta de respaldos.`, { peligro: true, ok: 'Restaurar' })) return;
+      if (!await ui.confirmar(`¿Reemplazar TODOS los datos actuales por los del respaldo "${f.name}" (${meses} mes(es))?\nAntes se guarda una copia de lo actual ${soloNavegador ? 'en este navegador' : 'en la carpeta de respaldos'}.`, { peligro: true, ok: 'Restaurar' })) return;
       await apiPost('/api/respaldo/restaurar', json);
       location.reload();
     } catch (e) { ui.avisar(mensajeError(e), 'err'); }
   };
 
   return (
-    <Tarjeta titulo={<><Ico name="history" /> Respaldos</>} sub="Cada día se guarda una copia completa en la carpeta de respaldos (se conservan las últimas 60).">
+    <Tarjeta titulo={<><Ico name="history" /> Respaldos</>} sub={soloNavegador
+      ? 'Cada día se guarda una copia completa en este navegador (se conservan las últimas 14). Descarga un respaldo de vez en cuando.'
+      : 'Cada día se guarda una copia completa en la carpeta de respaldos (se conservan las últimas 60).'}>
       {lista && <p className="muted" style={{ fontSize: 12.5 }}>{`${lista.archivos.length} copia(s) en ${lista.carpeta}${lista.archivos[0] ? ` · la más reciente: ${lista.archivos[0]}` : ''}`}</p>}
       <div className="row">
         <button className="btn sm" onClick={() => void descargar()}><Ico name="download" />Descargar respaldo</button>

@@ -1,0 +1,66 @@
+name: Publicar versión web
+
+# Compila la versión web (sin servidor: guarda en el navegador y en la carpeta
+# que se elija) y la publica en GitHub Pages:
+#   https://<usuario>.github.io/<repositorio>/
+# Requisito, una sola vez: Settings → Pages → Source: «GitHub Actions».
+# Mientras no esté activado, el flujo compila y avisa, pero no publica.
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  compilar:
+    runs-on: ubuntu-latest
+    outputs:
+      pages: ${{ steps.pages.outputs.habilitado }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Pruebas
+        run: npm test
+      - name: Compilar la versión web
+        run: npm run build:web
+        env:
+          KOMPLEX_BASE: /${{ github.event.repository.name }}/
+      - name: ¿GitHub Pages está activado?
+        id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api "repos/${{ github.repository }}/pages" >/dev/null 2>&1; then
+            echo "habilitado=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::GitHub Pages no está activado. Actívalo en Settings → Pages → Source: GitHub Actions y vuelve a ejecutar este flujo."
+            echo "habilitado=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Preparar la publicación
+        if: steps.pages.outputs.habilitado == 'true' && github.ref_name == github.event.repository.default_branch
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist-web
+
+  publicar:
+    needs: compilar
+    if: needs.compilar.outputs.pages == 'true' && github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.publicacion.outputs.page_url }}
+    steps:
+      - id: publicacion
+        uses: actions/deploy-pages@v4

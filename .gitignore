@@ -5,3 +5,4 @@ server/public/
 *.tsbuildinfo
 .env
 .DS_Store
+dist-web/

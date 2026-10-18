@@ -9,16 +9,8 @@ declare module 'fastify' {
   }
 }
 
-export class ApiError extends Error {
-  status: number;
-  payload: Record<string, unknown>;
-  constructor(status: number, message: string, extra: Record<string, unknown> = {}) {
-    super(message);
-    this.name = 'ApiError';
-    this.status = status;
-    this.payload = { error: message, ...extra };
-  }
-}
+export { ApiError } from './dominio/operaciones.js';
+import { ApiError } from './dominio/operaciones.js';
 
 /** Sesión obligatoria (las rutas privadas siempre la tienen). */
 export function sesion(req: FastifyRequest): Sesion {

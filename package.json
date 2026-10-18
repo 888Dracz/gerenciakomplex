@@ -18,7 +18,8 @@
     "setup": "npm install && npm run build",
     "acceso-directo": "node scripts/acceso-directo.mjs",
     "test": "vitest run",
-    "typecheck": "npm run typecheck --workspace server && npm run typecheck --workspace web"
+    "typecheck": "npm run typecheck --workspace server && npm run typecheck --workspace web",
+    "build:web": "npm run build:web --workspace web"
   },
   "devDependencies": {
     "vitest": "^5.0.5"

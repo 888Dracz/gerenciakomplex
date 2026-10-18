@@ -19,38 +19,15 @@ import {
   configInicial, datosVacios,
   type Configuracion, type Datos, type DatosMes, type EntradaBitacora,
 } from '../dominio/tipos.js';
+import {
+  BITACORA_MAX, esRespaldo, mesEstaVacio, mesVacio, normalizarMes, type AlmacenDatos, type Respaldo,
+} from '../dominio/operaciones.js';
 import { escribirJson, leerJson } from './archivos.js';
 import { SUB, prepararCarpeta, rutaConfig, rutaMes } from './carpeta.js';
 
-const BITACORA_MAX = 3000;
+export { mesVacio };
 
-export const mesVacio = (mes: string): DatosMes =>
-  ({ mes, registros: [], movimientos: [], aperturas: [], cuadres: [], tasas: {} });
-
-/** Completa un mes leído de disco (versiones viejas o archivos editados a mano). */
-function normalizarMes(mes: string, m: Partial<DatosMes> | null): DatosMes {
-  const base = mesVacio(mes);
-  if (!m) return base;
-  return {
-    mes,
-    registros: (m.registros ?? []).map((r) => ({ ...r, vueltos: r.vueltos ?? [], notas: r.notas ?? '' })),
-    movimientos: m.movimientos ?? [],
-    aperturas: m.aperturas ?? [],
-    cuadres: m.cuadres ?? [],
-    tasas: m.tasas ?? {},
-  };
-}
-
-/** Copia completa (lo que va a respaldos/ y lo que se descarga como respaldo). */
-export interface Respaldo {
-  app: 'gerencia-komplex';
-  version: 1;
-  creado: string;
-  config: Configuracion;
-  meses: DatosMes[];
-}
-
-export class Almacen {
+export class Almacen implements AlmacenDatos {
   readonly carpeta: string;
   config: Configuracion;
   private meses = new Map<string, DatosMes>();
@@ -111,9 +88,7 @@ export class Almacen {
   guardarMes(mes: string): void {
     const m = this.mes(mes);
     const ruta = rutaMes(this.carpeta, mes);
-    const vacio = !m.registros.length && !m.movimientos.length && !m.aperturas.length
-      && !m.cuadres.length && !Object.keys(m.tasas).length;
-    if (vacio) {
+    if (mesEstaVacio(m)) {
       // Un mes que se quedó sin nada no deja archivo: si no, contaría como mes con datos.
       try { fs.unlinkSync(ruta); } catch { /* no existía */ }
       this.meses.delete(mes);
@@ -184,7 +159,4 @@ export class Almacen {
   }
 }
 
-export function esRespaldo(v: unknown): v is Respaldo {
-  const r = v as Respaldo;
-  return !!r && r.app === 'gerencia-komplex' && !!r.config && Array.isArray(r.meses);
-}
+export { esRespaldo, type Respaldo };

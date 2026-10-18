@@ -12,7 +12,7 @@ import {
 
 import type { ConfigPublica, Datos } from '@dominio/tipos';
 import type { EstadoPeriodos } from '@dominio/periodos';
-import { apiGet, apiPost, getToken, mensajeError, onSesionCaducada, setToken } from '../lib/api';
+import { apiGet, apiPost, getToken, mensajeError, onSesionCaducada, setToken, suscribirCambiosExternos } from '../lib/api';
 
 export interface Inicio {
   configurado: boolean;
@@ -22,6 +22,9 @@ export interface Inicio {
   sugerida: string;
   carpetaPerdida: string | null;
   sesion: { nombre: string } | null;
+  /** Versión web (GitHub Pages): sin servidor, datos en el navegador y la carpeta. */
+  web?: boolean;
+  soportaCarpeta?: boolean;
 }
 
 export interface Estado {
@@ -38,6 +41,10 @@ export interface Estado {
   transferenciasPendientes: number;
   /** Direcciones para entrar desde el celular (misma red WiFi). */
   direcciones: string[];
+  web?: boolean;
+  carpetaEstado?: 'sin-soporte' | 'sin-carpeta' | 'conectada' | 'sin-permiso' | 'error';
+  carpetaError?: string | null;
+  soportaCarpeta?: boolean;
 }
 
 type Fase = 'cargando' | 'bienvenida' | 'login' | 'app' | 'error';
@@ -135,6 +142,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (pendiente.current) window.clearTimeout(pendiente.current);
     pendiente.current = window.setTimeout(() => { void recargar(); }, 50);
   }, [recargar]);
+
+  // Versión web: otra pestaña guardó algo → se vuelven a pedir los datos.
+  useEffect(() => suscribirCambiosExternos(() => cambio()), [cambio]);
 
   const entrar = useCallback(async (token: string) => {
     setToken(token);

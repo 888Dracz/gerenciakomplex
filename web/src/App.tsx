@@ -16,6 +16,7 @@ import { useSeccion, type Seccion } from './lib/router';
 import { useApp, useEstado } from './state/app';
 import { useUI } from './state/ui';
 import { BannerGerencial, useCierre } from './components/Cierre';
+import { AvisoCarpeta, BienvenidaWeb } from './components/CarpetaWeb';
 import { DialogoInforme } from './components/Informe';
 import { Caja } from './panels/Caja';
 import { Registro } from './panels/Registro';
@@ -27,7 +28,7 @@ import { Configuracion } from './panels/Configuracion';
 import type { Datos } from '@dominio/tipos';
 
 export function App() {
-  const { fase, error } = useApp();
+  const { fase, error, inicio } = useApp();
   if (fase === 'cargando') return <div className="boot">Cargando Gerencia Komplex…</div>;
   if (fase === 'error') {
     return (
@@ -39,7 +40,7 @@ export function App() {
       </div>
     );
   }
-  if (fase === 'bienvenida') return <Bienvenida />;
+  if (fase === 'bienvenida') return inicio?.web ? <BienvenidaWeb /> : <Bienvenida />;
   if (fase === 'login') return <Entrar />;
   return <Aplicacion />;
 }
@@ -328,7 +329,9 @@ function Aplicacion() {
   const informe = () => ui.abrirModal((cerrar) => <DialogoInforme onCerrar={cerrar} />);
 
   const pendientes = estado.transferenciasPendientes;
-  const carpetaCorta = estado.carpeta.split(/[\\/]/).slice(-2).join('\\');
+  const carpetaCorta = estado.web
+    ? (estado.carpeta ? `${estado.carpeta}${estado.carpetaEstado === 'conectada' ? '' : ' (sin conectar)'}` : 'Solo en este navegador')
+    : estado.carpeta.split(/[\\/]/).slice(-2).join('\\');
 
   return (
     <>
@@ -388,6 +391,7 @@ function Aplicacion() {
             <button className="btn sm" title="Salir" onClick={() => void salir()}><Ico name="logout" /><span className="solo-pc">Salir</span></button>
           </div>
           <BannerGerencial />
+          <AvisoCarpeta />
           <AvisoCierre />
           <div className="content" id="content" key={seccion}>
             {PANELES[seccion]()}

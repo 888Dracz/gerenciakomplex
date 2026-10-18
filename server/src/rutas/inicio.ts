@@ -12,17 +12,13 @@ import { Almacen } from '../almacen/almacen.js';
 import { abrirEnExplorador, elegirCarpetaWindows, guardarPuntero, revisarCarpeta } from '../almacen/carpeta.js';
 import { APP_ID, VERSION, carpetaSugerida } from '../config.js';
 import { almacenActual, carpetaPerdida, usarAlmacen } from '../estado.js';
+import { validarClaveNueva } from '../dominio/operaciones.js';
 import { ApiError, body, esLocal, exigirLocal, sesion } from '../http.js';
 import {
   bloqueadoPorIntentos, cerrarSesion, cifrarClave, claveCorrecta, crearSesion, limpiarFallos, registrarFallo,
 } from '../sesiones.js';
 
 const txt = (v: unknown, max = 200) => String(v ?? '').trim().slice(0, max);
-
-function validarClaveNueva(clave: string): void {
-  if (clave.length < 4) throw new ApiError(400, 'La clave de acceso debe tener al menos 4 caracteres.');
-  if (clave.length > 100) throw new ApiError(400, 'La clave de acceso es demasiado larga.');
-}
 
 export default async function rutasInicio(app: FastifyInstance): Promise<void> {
   app.get('/api/salud', async () => ({ ok: true, app: APP_ID, version: VERSION }));
@@ -130,4 +126,3 @@ export default async function rutasInicio(app: FastifyInstance): Promise<void> {
   });
 }
 
-export { validarClaveNueva };

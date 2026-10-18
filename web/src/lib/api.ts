@@ -4,7 +4,12 @@
  * El token de la sesión vive en localStorage (lo borra "Salir"). Los errores
  * del servidor llegan como `ErrorApi` con el código que permite reaccionar:
  * CIERRE_PENDIENTE abre la pregunta obligatoria del cierre de mes.
+ *
+ * En la versión web (GitHub Pages) no hay servidor: las mismas llamadas las
+ * atiende `local/servidor.ts` dentro del navegador.
  */
+import { alCambiarFuera, servidorLocal } from '@backend';
+
 const CLAVE_TOKEN = 'kx_token';
 let token: string | null = (() => {
   try { return localStorage.getItem(CLAVE_TOKEN); } catch { return null; }
@@ -44,7 +49,28 @@ export const hayRedActiva = () => activas > 0;
 let alCaducar: (() => void) | null = null;
 export const onSesionCaducada = (f: () => void) => { alCaducar = f; };
 
+/** Cambios hechos en otra pestaña (solo versión web). */
+export const suscribirCambiosExternos = (f: () => void): (() => void) => alCambiarFuera(f);
+
+async function pedirLocal<T>(method: string, url: string, cuerpo?: unknown, binario?: Uint8Array): Promise<T> {
+  activas++;
+  avisar();
+  try {
+    return await servidorLocal!(method, url, cuerpo, binario, token) as T;
+  } catch (e) {
+    const err = e as { status?: number; payload?: Record<string, unknown>; message?: string };
+    const status = err.status ?? 500;
+    const datos = err.payload ?? { error: err.message ?? 'Error inesperado' };
+    if (status === 401 && datos.codigo === 'SIN_SESION' && alCaducar) alCaducar();
+    throw new ErrorApi(status, String(datos.error ?? `Error ${status}`), datos);
+  } finally {
+    activas--;
+    avisar();
+  }
+}
+
 async function pedir<T>(method: string, url: string, cuerpo?: unknown, binario?: Uint8Array): Promise<T> {
+  if (__MODO_WEB__) return pedirLocal<T>(method, url, cuerpo, binario);
   const headers = new Headers();
   if (token) headers.set('Authorization', 'Bearer ' + token);
   let body: BodyInit | undefined;

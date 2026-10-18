@@ -20,6 +20,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 import { NOMBRE_CARPETA, PUNTERO } from '../config.js';
+import { LEEME } from '../dominio/operaciones.js';
 import { leerJson, escribirJson } from './archivos.js';
 
 export const SUB = { datos: 'datos', respaldos: 'respaldos', cierres: 'cierres' } as const;
@@ -101,29 +102,6 @@ export function revisarCarpeta(elegida: string): Revision {
   return out;
 }
 
-const LEEME = `GERENCIA KOMPLEX — CARPETA DE DATOS
-====================================
-
-Aquí se guarda AUTOMÁTICAMENTE toda la información del programa Gerencia
-Komplex (caja, registro de pagos, transferencias, cuadres y cierres de mes).
-Está separada de la carpeta del programa: si el programa se borra, se pierde o
-se vuelve a descargar, la información sigue aquí.
-
-  datos/        La información en uso. Un archivo por mes (AAAA-MM.json) y la
-                configuración (planes, bancos, cierres de mes).
-  respaldos/    Una copia completa por día. Se conservan las últimas 60.
-  cierres/      Al cerrar un mes se guarda aquí su Excel, su informe de Word y
-                una copia de sus datos.
-
-IMPORTANTE
-- No modifiques ni borres los archivos de "datos" con el programa abierto.
-- Para llevar los datos a otra computadora, copia esta carpeta completa y, en
-  el programa nuevo, elige esta carpeta al entrar por primera vez.
-- Si un archivo de "datos" se daña, cierra el programa y reemplázalo por el del
-  último respaldo (respaldos/AAAA-MM-DD.json contiene todos los meses; también
-  se puede restaurar desde el programa: Configuración → Respaldos).
-`;
-
 /** Crea la estructura de la carpeta (sin tocar lo que ya exista). */
 export function prepararCarpeta(ruta: string): void {
   for (const s of Object.values(SUB)) fs.mkdirSync(path.join(ruta, s), { recursive: true });
@@ -131,9 +109,6 @@ export function prepararCarpeta(ruta: string): void {
   if (!fs.existsSync(leeme)) fs.writeFileSync(leeme, LEEME.replace(/\n/g, os.EOL), 'utf8');
 }
 
-/** Nombre de carpeta seguro para Windows. */
-export const nombreSeguro = (s: string): string =>
-  s.replace(/[\\/:*?"<>|]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120);
 
 /**
  * Abre el selector de carpetas de Windows (solo en la PC donde corre el

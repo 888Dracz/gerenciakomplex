@@ -90,7 +90,7 @@ h3 .ico { margin-right: 5px; }
 *::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 8px; }
 
 /* ---------- bienvenida y entrada ---------- */
-.login-wrap { display: grid; place-items: center; min-height: 100vh; padding: 20px;
+.login-wrap { display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; min-height: 100vh; padding: 20px;
   background: radial-gradient(1000px 500px at 50% -10%, color-mix(in srgb, var(--gold) 13%, transparent), transparent), var(--bg); }
 .login-card { width: 420px; max-width: 100%; border-radius: 18px; padding: 30px; box-shadow: var(--shadow);
   border: 1px solid transparent;

@@ -273,3 +273,6 @@ export function configInicial(ahora: string): Configuracion {
 
 /** Horas que dura el modo gerencial. */
 export const GERENCIAL_HORAS = 24;
+
+/** SHA-256 del código gerencial (lo comparten el programa de escritorio y la versión web). */
+export const HUELLA_CODIGO_GERENCIAL = 'd978342f31d4c9ca581081920f8f59fbb2e41c7ea5d84885d61696c0ee4c5d61';

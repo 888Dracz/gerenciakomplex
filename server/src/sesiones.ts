@@ -12,10 +12,7 @@ import crypto from 'node:crypto';
 
 import { SESIONES, SESION_CORTA_MS, SESION_RECORDAR_MS } from './config.js';
 import { escribirJson, leerJson } from './almacen/archivos.js';
-import { GERENCIAL_HORAS } from './dominio/tipos.js';
-
-/** SHA-256 del código gerencial. */
-const HUELLA_CODIGO_GERENCIAL = 'd978342f31d4c9ca581081920f8f59fbb2e41c7ea5d84885d61696c0ee4c5d61';
+import { GERENCIAL_HORAS, HUELLA_CODIGO_GERENCIAL } from './dominio/tipos.js';
 
 export interface Sesion {
   token: string;

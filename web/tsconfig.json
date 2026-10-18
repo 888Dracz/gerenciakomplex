@@ -2,7 +2,11 @@
   "compilerOptions": {
     "target": "ES2022",
     "useDefineForClassFields": true,
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2023",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "skipLibCheck": true,
@@ -16,10 +20,23 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@dominio/*": ["../server/src/dominio/*"]
+      "@dominio/*": [
+        "../server/src/dominio/*"
+      ],
+      "@backend": [
+        "src/local/servidor.ts"
+      ]
     },
-    "types": ["vite/client"]
+    "types": [
+      "vite/client"
+    ]
   },
-  "include": ["src", "../server/src/dominio"],
-  "exclude": ["../server/src/**/*.test.ts"]
+  "include": [
+    "src",
+    "../server/src/dominio"
+  ],
+  "exclude": [
+    "src/**/*.test.ts",
+    "../server/src/**/*.test.ts"
+  ]
 }
