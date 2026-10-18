@@ -9,7 +9,45 @@ Está hecho como **Dorado Club**: servidor **Node 22 + Fastify** e interfaz
 el rojo de Komplex como acento). Las reglas de los pagos son las del Excel
 *Komplex Gym - Registro de pagos*.
 
-## Cómo se instala y se abre
+## Versión web: abrir desde el enlace
+
+**https://888dracz.github.io/gerenciakomplex/**
+
+El mismo programa funciona como página web, sin instalar nada: se abre desde ese
+enlace en la PC o en el celular. Todo lo que se registra se guarda **en el
+propio dispositivo** (no en internet), de forma automática:
+
+- **En el navegador**, siempre. Al volver a abrir el enlace los datos siguen ahí.
+- **En una carpeta de la computadora** (Chrome o Edge en PC): la primera vez se
+  pide elegir dónde crear la carpeta **Komplex Gerencia**, y desde entonces
+  cada cambio se guarda también ahí, con el mismo formato que el programa de
+  escritorio (datos, respaldos diarios y cierres con su Excel y Word). Si se
+  borran los datos del navegador, o el repositorio, la carpeta sigue en la PC
+  y basta con volver a elegirla. El programa de escritorio puede abrir esa
+  misma carpeta y al revés.
+- En el **celular** (y en Firefox o Safari) los navegadores no dejan elegir
+  carpetas: se guarda en el navegador y conviene usar *Configuración →
+  Carpeta y respaldos → Descargar respaldo* de vez en cuando.
+
+Para tenerlo como un programa:
+
+- **Instalar como app**: en Chrome o Edge, botón *Instalar* de la barra de
+  direcciones. En el celular, menú del navegador → *Agregar a pantalla de
+  inicio*. Queda con su icono y **abre sin internet**.
+- **Página guardada**: en *Configuración → Carpeta y respaldos → Descargar el
+  programa (.html)* se baja el programa entero en **un solo archivo**; con
+  doble clic se abre en el navegador, incluso sin internet.
+
+Cada dispositivo guarda sus propios datos. Para que la PC y el celular vean la
+misma información a la vez, usa el programa de escritorio y entra desde el
+celular por WiFi (ver *Usar desde el celular*).
+
+**Publicar la página (una sola vez):** en GitHub, *Settings → Pages → Build
+and deployment → Source: **GitHub Actions***. Después, cada cambio que se sube
+al repositorio se publica solo (workflow `.github/workflows/pages.yml`, que
+antes corre las pruebas).
+
+## Programa de escritorio: cómo se instala y se abre
 
 1. Descarga el repositorio (botón verde **Code → Download ZIP**) y descomprímelo
    donde quieras, por ejemplo en `Documentos\GerenciaKomplex`.
@@ -118,10 +156,11 @@ ven y modifican la misma información.
 ```
 gerenciakomplex/
 ├─ Instalar requisitos.bat · Iniciar Gerencia Komplex.bat · Permitir en la red.bat
-├─ scripts/                 Icono del Escritorio y arranque en desarrollo
+├─ scripts/                 Icono del Escritorio, arranque en desarrollo y web-final.mjs (versión web)
 ├─ server/                  Servidor (TypeScript → server/dist)
 │  └─ src/
 │     ├─ dominio/           Reglas del negocio (las usa también la interfaz)
+│     │  ├─ operaciones.ts  Cada operación (registrar, cerrar mes…): servidor y versión web
 │     │  ├─ tipos.ts        Monedas, registro, caja, cuadre, configuración
 │     │  ├─ calculos.ts     Total USD, caja esperada, cuadre, resumen
 │     │  ├─ periodos.ts     Cierre de mes
@@ -135,6 +174,7 @@ gerenciakomplex/
    └─ src/
       ├─ panels/            Caja, Registro, Transferencias, Cuadre, Resumen, Cierres, Configuración
       ├─ components/        Formulario de cobro, cierre de mes, informe…
+      ├─ local/             Versión web: el "servidor" dentro del navegador, carpeta y respaldos
       └─ lib/               Excel y Word sin dependencias (de Dorado Club), API, formatos
 ```
 
@@ -145,6 +185,7 @@ npm run setup      # instala librerías y compila todo
 npm run dev        # servidor + interfaz con recarga automática (http://localhost:5175)
 npm run build      # compila servidor e interfaz
 npm start          # arranca la versión compilada (puerto 3004)
+npm run build:web  # versión web → dist-web/ (página, sw.js y komplex-gerencia.html)
 npm test           # pruebas (cálculos, cierre de mes, API de punta a punta)
 npm run typecheck  # revisa los tipos
 ```
